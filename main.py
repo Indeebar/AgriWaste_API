@@ -6,6 +6,9 @@ import tensorflow as tf
 import os
 import uvicorn
 
+# Optional: Disable GPU usage to avoid CUDA warnings on Render
+os.environ["CUDA_VISIBLE_DEVICES"] = ""
+
 # Load your models
 model = tf.keras.models.load_model("price_model.h5")
 scaler = joblib.load("scaler.pkl")
@@ -19,6 +22,10 @@ class InputData(BaseModel):
     demand: str
     weight: float
 
+@app.get("/")
+def root():
+    return {"message": "AgriWaste Price Prediction API is up and running!"}
+
 @app.post("/predict")
 def predict_price(data: InputData):
     waste = waste_encoder.transform([data.waste_type])
@@ -27,7 +34,7 @@ def predict_price(data: InputData):
     prediction = model.predict(features)
     return {"predicted_price": float(prediction[0][0])}
 
-# ✅ Add this so Render can detect and bind to the correct port
+# Entry point for Uvicorn
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))  # Render provides this port
     uvicorn.run("main:app", host="0.0.0.0", port=port)
