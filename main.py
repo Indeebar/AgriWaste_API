@@ -1,9 +1,10 @@
-# main.py
 from fastapi import FastAPI
 from pydantic import BaseModel
 import joblib
 import numpy as np
 import tensorflow as tf
+import os
+import uvicorn
 
 # Load your models
 model = tf.keras.models.load_model("price_model.h5")
@@ -25,3 +26,8 @@ def predict_price(data: InputData):
     features = scaler.transform([[waste[0], demand[0], data.weight]])
     prediction = model.predict(features)
     return {"predicted_price": float(prediction[0][0])}
+
+# ✅ Add this so Render can detect and bind to the correct port
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 10000))  # Render provides this port
+    uvicorn.run("main:app", host="0.0.0.0", port=port)
