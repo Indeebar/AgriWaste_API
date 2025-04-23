@@ -11,8 +11,9 @@ COPY . .
 RUN pip install --no-cache-dir --upgrade pip \
  && pip install --no-cache-dir -r requirements.txt
 
-# Expose port (optional if using uvicorn to run FastAPI)
-EXPOSE 8000
+# Expose the port that Render expects (default is 10000, but EXPOSE is just documentation)
+EXPOSE 10000
 
-# Run your FastAPI or Flask app
-CMD ["python", "main.py"]
+# Run FastAPI with Uvicorn, binding to 0.0.0.0 and the Render-provided port
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "10000"]
+
